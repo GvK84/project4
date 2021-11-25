@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>EMPLOYEES</title>
+    <style>
+        div[id="fname"], div[id="fsurname"], div[id="fsalary"], div[id="fstartdate"], div[id="fenddate"] {
+            padding-left: 40px;
+        }
+        table, th, td {
+            border: solid 1px #ddd;
+            border-collapse: collapse;
+            padding: 2px 3px;
+            text-align: center;
+        }
+
+        td {
+            text-align: left;
+        }
+
+        th {
+            font-weight: bold;
+        }
+    </style>
+
+
+</head>
+<body onload="callGET()">
+    <h4>Sample Employee </h4>
+    <div id="label">Name</div>
+    <div id="fname"></div>
+    <div id="label">Surname</div>
+    <div id="fsurname"></div>
+    <div id="label">Salary</div>
+    <div id="fsalary"></div>
+    <div id="label">Start Date</div>
+    <div id="fstartdate"></div>
+    <div id="label">End Date</div>
+    <div id="fenddate"></div>
+
+    <div id="response"></div>
+    <script>
+        function callGET() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var myEmp = JSON.parse(this.responseText);
+                    document.getElementById("fname").innerHTML = myEmp[0].name;
+                    document.getElementById("fsurname").innerHTML = myEmp[0].surname;
+                    document.getElementById("fsalary").innerHTML = myEmp[0].salary + ' Euro';
+                    const s = new Date(myEmp[0].startDate);
+                    let syear = s.getFullYear();
+                    let smonth = ('0' + (s.getMonth() + 1)).slice(-2);
+                    let sdate = ('0' + s.getDate()).slice(-2);
+                    const e = new Date(myEmp[0].endDate);
+                    let eyear = e.getFullYear();
+                    let emonth = ('0' + (e.getMonth() + 1)).slice(-2);
+                    let edate = ('0' + e.getDate()).slice(-2);
+                    document.getElementById("fstartdate").innerHTML = sdate + "/" + smonth + "/" + syear;
+                    document.getElementById("fenddate").innerHTML = edate + "/" + emonth + "/" + eyear;
+                }
+            };
+            xhttp.open("GET", "/Employee", true);
+            xhttp.send();
+        }
+        function showDBData() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var myEmp = JSON.parse(this.responseText);
+                    var headers = ["Name", "Surname", "Salary", "Start Date", "End Date"];
+                    var col = ["name", "surname", "salary", "startDate", "endDate"];
+                    var table = document.createElement("table");
+                    var tr = table.insertRow(0);
+                    for (var i = 0; i < col.length; i++) {
+                        var th = document.createElement("th");
+                        th.innerHTML = headers[i];
+                        tr.appendChild(th);
+                    }
+                    for (var i = 0; i < myEmp.length; i++) {
+                        tr = table.insertRow(i + 1);
+                        for (var j = 0; j < col.length; j++) {
+                            var tabCell = tr.insertCell(-1);
+                            if (j == 2) {
+                                tabCell.innerHTML = myEmp[i][col[j]] + ' Euro';
+                            }
+                            else if (j == 3 | j == 4) {
+                                const s = new Date(myEmp[i][col[j]]);
+                                let syear = s.getFullYear();
+                                if (syear < 1900) { tabCell.innerHTML = ""; }
+                                else {
+                                    let smonth = ('0' + (s.getMonth() + 1)).slice(-2);
+                                    let sdate = ('0' + s.getDate()).slice(-2);
+                                    tabCell.innerHTML = sdate + "/" + smonth + "/" + syear;
+                                }
+
+                            }
+                            else {
+                                tabCell.innerHTML = myEmp[i][col[j]];
+                            }
+                        }
+                    }
+                }
+                var divShowData = document.getElementById('showdata');
+                divShowData.innerHTML = "";
+                divShowData.appendChild(table);
+            };
+            xhttp.open("GET", "/allEmployees", true);
+            xhttp.send();
+        }
+    </script>
+    <h4> Click the button to show all employees stored in database</h4>
+    <input type='button' onclick='showDBData()'
+           value='Show Employees' />
+    <p id='showdata'></p>
+</body>
+</html>
